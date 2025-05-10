@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from "react";
+
 const sentences = [
   "我的爱好",
   "我有一只狗, ",
@@ -15,14 +17,39 @@ const sentences = [
 ];
 
 export default function ChineseReader() {
+  const [chineseVoice, setChineseVoice] = useState(null);
+
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const zhVoice = voices.find(v => v.lang.startsWith("zh"));
+      if (zhVoice) {
+        setChineseVoice(zhVoice);
+      }
+    };
+
+    // Load voices immediately if available
+    loadVoices();
+
+    // Also listen to the voiceschanged event (important for iOS)
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, []);
+
   const speak = (text) => {
+    if (!chineseVoice) {
+      alert("No Chinese voice available on this device.");
+      return;
+    }
+
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "zh-CN";
+    utterance.voice = chineseVoice;
+    utterance.lang = chineseVoice.lang;
     window.speechSynthesis.speak(utterance);
   };
 
   return (
     <div style={{ padding: "1rem", fontFamily: "sans-serif" }}>
+      <h2>我的爱好</h2>
       {sentences.map((sentence, index) => (
         <div key={index} style={{ marginBottom: "1rem", fontSize: "2.5rem" }}>
           {sentence.split("").map((char, charIndex) => (
@@ -35,7 +62,7 @@ export default function ChineseReader() {
                 transition: "background 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.target.style.background = "#ffe58f"; // light highlight
+                e.target.style.background = "#ffe58f";
               }}
               onMouseLeave={(e) => {
                 e.target.style.background = "transparent";
@@ -46,7 +73,7 @@ export default function ChineseReader() {
           ))}
           <button
             onClick={() => speak(sentence)}
-            style={{ marginLeft: "1rem", fontSize: "1.5rem", cursor: "pointer" }}
+            style={{ marginLeft: "1rem", fontSize: "1.5rem" }}
           >
             🔊
           </button>
