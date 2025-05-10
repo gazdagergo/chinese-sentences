@@ -17,20 +17,41 @@ const sentences = [
 export default function ChineseReader() {
   const speak = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "zh-CN"; // kínai (mandarin)
+    utterance.lang = "zh-CN";
     window.speechSynthesis.speak(utterance);
   };
 
   return (
     <div style={{ padding: "1rem", fontFamily: "sans-serif" }}>
-      <h2>我的爱好</h2>
-
-        {sentences.map((sentence, index) => (
-          <span key={index} style={{ marginLeft: "1rem", fontSize: "3rem" }}>
-            <span style={{ marginRight: "1rem" }}>{sentence}</span>
-            <button onClick={() => speak(sentence)}>🔊</button>
-          </span>
-        ))}
+      {sentences.map((sentence, index) => (
+        <div key={index} style={{ marginBottom: "1rem", fontSize: "2.5rem" }}>
+          {sentence.split("").map((char, charIndex) => (
+            <span
+              key={charIndex}
+              onClick={() => speak(char)}
+              style={{
+                cursor: "pointer",
+                padding: "0 4px",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "#ffe58f"; // light highlight
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "transparent";
+              }}
+            >
+              {char}
+            </span>
+          ))}
+          <button
+            onClick={() => speak(sentence)}
+            style={{ marginLeft: "1rem", fontSize: "1.5rem", cursor: "pointer" }}
+          >
+            🔊
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
